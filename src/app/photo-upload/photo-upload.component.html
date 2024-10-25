@@ -1,0 +1,13 @@
+<div>
+  <input
+    type="file"
+    (change)="onFileSelected($event)"
+    accept="image/*"
+    capture="environment"
+  />
+  <button (click)="uploadFile()">Upload</button>
+  <div *ngIf="uploadPercent | async as percent">
+    <p>Upload Progress: {{ percent }}%</p>
+  </div>
+</div>
+
