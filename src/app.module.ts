@@ -5,6 +5,7 @@ import { AngularFireStorageModule } from '@angular/fire/compat/storage';
 import {environment} from "./enviroments/enviroments";
 import {AppComponent} from "./app/app.component";
 import {PhotoUploadComponent} from "./app/photo-upload/photo-upload.component";
+import {HttpClientModule} from "@angular/common/http";
 
 @NgModule({
   declarations: [AppComponent],
@@ -14,7 +15,7 @@ import {PhotoUploadComponent} from "./app/photo-upload/photo-upload.component";
     AngularFireStorageModule,
     PhotoUploadComponent,
     PhotoUploadComponent,
-
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent],
