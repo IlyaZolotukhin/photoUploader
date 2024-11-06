@@ -4,6 +4,7 @@ import {catchError, Observable, of} from 'rxjs';
 import {AsyncPipe, NgForOf, NgIf, NgOptimizedImage} from "@angular/common";
 import {map} from "rxjs/operators";
 import {AngularFireDatabase} from '@angular/fire/compat/database';
+import {ReactiveFormsModule} from "@angular/forms";
 
 interface File {
   name: string;
@@ -18,9 +19,11 @@ interface File {
     AsyncPipe,
     NgForOf,
     NgOptimizedImage,
+    ReactiveFormsModule
   ],
   standalone: true,
 })
+
 export class PhotoUploadComponent implements OnInit {
   selectedFile: File | null = null;
   uploadPercent!: Observable<number | undefined>;
@@ -102,4 +105,5 @@ export class PhotoUploadComponent implements OnInit {
       console.error('Error deleting file:', error);
     });
   }
+
 }
