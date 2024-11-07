@@ -5,8 +5,9 @@ import {AsyncPipe, NgForOf, NgIf, NgOptimizedImage} from "@angular/common";
 import {map} from "rxjs/operators";
 import {AngularFireDatabase} from '@angular/fire/compat/database';
 import {ReactiveFormsModule} from "@angular/forms";
+import {FileService} from "../services/file.service";
 
-interface File {
+export interface File {
   name: string;
 }
 
@@ -31,10 +32,16 @@ export class PhotoUploadComponent implements OnInit {
 
   constructor(
     private storage: AngularFireStorage,
-    private db: AngularFireDatabase
+    private db: AngularFireDatabase,
+    private fileService: FileService,
   ) {}
 //метод жизненного цикла, запускает fetchFiles после инициализации всех свойств компонента
   ngOnInit(): void {
+    this.fileService.selectedFile$.subscribe(file => {
+      this.selectedFile = file;
+      console.log('выбранный файл из PhotoUploadComponent:', this.selectedFile);
+    });
+
     this.fetchFiles();
   }
 //метод возвращает список из последних 20 файлов из базы данных firebase
@@ -71,12 +78,7 @@ export class PhotoUploadComponent implements OnInit {
       this.uploadFiles = fileUploads;
     });
   }
-//зарузка файла на сервер freebase
-  //выбор текущего файла
-  onFileSelected(event: any) {
-    this.selectedFile = event.target.files[0];
-  }
-//загрузка текущего файла
+//зарузка файла на сервер firebase
   uploadFile() {
     if (this.selectedFile) {
       const filePath = `files/${this.selectedFile.name}`;

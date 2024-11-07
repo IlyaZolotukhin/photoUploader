@@ -5,6 +5,8 @@ import type {TuiFileLike} from '@taiga-ui/kit';
 import {TuiFiles} from '@taiga-ui/kit';
 import type {Observable} from 'rxjs';
 import {finalize, map, of, Subject, switchMap, timer} from 'rxjs';
+import {FileService} from "../services/file.service";
+import {File} from "../photo-upload/photo-upload.component";
 
 @Component({
   selector: 'app-input-files',
@@ -16,6 +18,9 @@ import {finalize, map, of, Subject, switchMap, timer} from 'rxjs';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class InputFilesComponent {
+  constructor(private fileService: FileService) {}
+  selectedFile: File | null = null;
+//ниже код из TUI
   protected readonly control = new FormControl<TuiFileLike | null>(
     null,
     Validators.required,
@@ -52,5 +57,10 @@ export default class InputFilesComponent {
       }),
       finalize(() => this.loadingFiles$.next(null)),
     );
+  }
+//выбираем файл и отправляем в файл-сервис для хранения
+  onFileSelected(event: any) {
+    this.selectedFile = event.target.files[0];
+    this.fileService.setSelectedFile(this.selectedFile);
   }
 }
