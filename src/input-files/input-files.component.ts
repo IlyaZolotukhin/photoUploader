@@ -61,6 +61,7 @@ export default class InputFilesComponent {
 //выбираем файл и отправляем в файл-сервис для хранения
   onFileSelected(event: any) {
     this.selectedFile = event.target.files[0];
+    console.log(this.selectedFile)
     this.fileService.setSelectedFile(this.selectedFile);
   }
 }

@@ -1,19 +1,38 @@
-<div style="display: flex; flex-direction: column; align-items: center; ">
-<!--  <input
-    type="file"
-    (change)="onFileSelected($event)"
-    accept="image/*"
-    capture="user"
-  /><br>-->
-  <button (click)="uploadFile()">Upload</button>
-  <div *ngIf="uploadPercent | async as percent">
-    <p>Upload Progress: {{ percent }}%</p>
-  </div>
+  <img type="button"
+       (click)="showDialog()" ngSrc="assets/circle-plus.svg" alt="open modal" height="54" width="54"
+       style="display: flex; position:fixed; margin: 10px; ">
+  <ng-template
+    let-observer
 
+    [tuiDialogOptions]="{label: 'Выберете изображение', size: 's'}"
+    [(tuiDialog)]="open"
+  >
+    <p>Нажмите, чтобы загрузить файл с вашего устройства</p>
+    <app-input-files></app-input-files>
+    <div *ngIf="selectedFile">
+
+<!--      <img *ngIf="selectedFile" [ngSrc]="selectedFile.name" [alt]="selectedFile.name" fill>
+      <span *ngIf="uploadPercent | async as percent">
+          <p>Upload Progress: {{ percent }}%</p>
+        </span>-->
+      <button
+        style="margin-top: 10px"
+        tuiButton
+        (click)="uploadFile()"
+      >
+        Загрузить
+      </button>
+    </div>
+  </ng-template>
+
+
+<div style="display: flex; flex-direction: column; align-items: center;">
   <h3>Загруженные изображения:</h3>
-  <div *ngFor="let file of uploadFiles" style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px;">
-    <img [src]="file.url" [alt]="file.name" style="width: 100px; height: auto;" />
-    <p>{{ file.name }}</p> <button (click)="deleteFile(file.key)">Удалить</button>
+  <div *ngFor="let file of uploadFiles"
+       style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; border: 1px solid white; border-radius: 10px; padding: 10px">
+    <img [src]="file.url" [alt]="file.name" style="width: 100px; height: auto;"/>
+    <p>{{ file.name }}</p>
+    <button tuiButton size="m" (click)="deleteFile(file.key)">Удалить</button>
   </div>
 </div>
 

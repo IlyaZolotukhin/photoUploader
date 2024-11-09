@@ -1,11 +1,16 @@
 import {Component, OnInit} from '@angular/core';
+import {ReactiveFormsModule} from '@angular/forms';
 import {AngularFireStorage} from '@angular/fire/compat/storage';
 import {catchError, Observable, of} from 'rxjs';
 import {AsyncPipe, NgForOf, NgIf, NgOptimizedImage} from "@angular/common";
 import {map} from "rxjs/operators";
 import {AngularFireDatabase} from '@angular/fire/compat/database';
-import {ReactiveFormsModule} from "@angular/forms";
 import {FileService} from "../services/file.service";
+import {TuiButton, TuiDialog} from "@taiga-ui/core";
+import {TuiInputModule} from "@taiga-ui/legacy";
+import {TuiAutoFocus} from "@taiga-ui/cdk";
+import InputFilesComponent from "../input-files/input-files.component";
+import {TuiButtonClose} from "@taiga-ui/kit";
 
 export interface File {
   name: string;
@@ -20,7 +25,13 @@ export interface File {
     AsyncPipe,
     NgForOf,
     NgOptimizedImage,
-    ReactiveFormsModule
+    ReactiveFormsModule,
+    TuiButton,
+    TuiDialog,
+    TuiInputModule,
+    TuiAutoFocus,
+    InputFilesComponent,
+    TuiButtonClose
   ],
   standalone: true,
 })
@@ -35,6 +46,7 @@ export class PhotoUploadComponent implements OnInit {
     private db: AngularFireDatabase,
     private fileService: FileService,
   ) {}
+
 //метод жизненного цикла, запускает fetchFiles после инициализации всех свойств компонента
   ngOnInit(): void {
     this.fileService.selectedFile$.subscribe(file => {
@@ -43,6 +55,15 @@ export class PhotoUploadComponent implements OnInit {
     });
 
     this.fetchFiles();
+  }
+  protected open = false;
+
+  protected showDialog(): void {
+    this.open = true;
+  }
+
+  protected clearSelectedFile(): void {
+    this.selectedFile = null;
   }
 //метод возвращает список из последних 20 файлов из базы данных firebase
   getFiles() {
@@ -94,6 +115,8 @@ export class PhotoUploadComponent implements OnInit {
           fileRef.getDownloadURL().subscribe(url => {
             console.log('File available at', url);
             this.db.list('files').push({ name: this.selectedFile?.name, url });
+            this.open = false;
+            this.selectedFile = null;
           });
         }
       });
@@ -107,5 +130,4 @@ export class PhotoUploadComponent implements OnInit {
       console.error('Error deleting file:', error);
     });
   }
-
 }
