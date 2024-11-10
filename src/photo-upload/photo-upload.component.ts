@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, inject} from '@angular/core';
 import {ReactiveFormsModule} from '@angular/forms';
 import {AngularFireStorage} from '@angular/fire/compat/storage';
 import {catchError, Observable, of} from 'rxjs';
@@ -6,11 +6,11 @@ import {AsyncPipe, NgForOf, NgIf, NgOptimizedImage} from "@angular/common";
 import {map} from "rxjs/operators";
 import {AngularFireDatabase} from '@angular/fire/compat/database';
 import {FileService} from "../services/file.service";
-import {TuiButton, TuiDialog} from "@taiga-ui/core";
+import {TuiAlertService, TuiButton, TuiDialog, TuiLoader} from "@taiga-ui/core";
 import {TuiInputModule} from "@taiga-ui/legacy";
 import {TuiAutoFocus} from "@taiga-ui/cdk";
 import InputFilesComponent from "../input-files/input-files.component";
-import {TuiButtonClose} from "@taiga-ui/kit";
+import {TuiButtonClose, TuiProgressBar} from "@taiga-ui/kit";
 
 export interface File {
   name: string;
@@ -31,15 +31,22 @@ export interface File {
     TuiInputModule,
     TuiAutoFocus,
     InputFilesComponent,
-    TuiButtonClose
+    TuiButtonClose,
+    TuiLoader,
+    TuiProgressBar
   ],
   standalone: true,
 })
 
 export class PhotoUploadComponent implements OnInit {
   selectedFile: File | null = null;
+  selectedImage: any;
   uploadPercent!: Observable<number | undefined>;
   uploadFiles?: any[] = [];
+  protected open = false;
+  protected openImg = false;
+  loadButton: boolean = false;
+  private readonly alerts = inject(TuiAlertService);
 
   constructor(
     private storage: AngularFireStorage,
@@ -49,17 +56,21 @@ export class PhotoUploadComponent implements OnInit {
 
 //метод жизненного цикла, запускает fetchFiles после инициализации всех свойств компонента
   ngOnInit(): void {
+    //загрузка при инициализации
+    this.fetchFiles();
+    //получаем при инициализации выбранный файл
     this.fileService.selectedFile$.subscribe(file => {
       this.selectedFile = file;
-      console.log('выбранный файл из PhotoUploadComponent:', this.selectedFile);
     });
-
-    this.fetchFiles();
   }
-  protected open = false;
 
   protected showDialog(): void {
     this.open = true;
+  }
+
+  protected showImage(file: any): void {
+    this.openImg = true;
+    this.selectedImage = file;
   }
 
   protected clearSelectedFile(): void {
@@ -71,10 +82,10 @@ export class PhotoUploadComponent implements OnInit {
   }
 //метод для загрузки файлов
   fetchFiles(): void {
-    //вызывает getFiles(), чтобы получить список файлов
-    //оператор snapshotChanges() для получени изменений в реальном времени
-    // инутри pipe() происходит обработка данных с помощью оператора map()
+    // Вызывает getFiles(), чтобы получить список файлов
     this.getFiles().snapshotChanges().pipe(
+      //оператор snapshotChanges() для получени изменений в реальном времени
+      // инутри pipe() происходит обработка данных с помощью оператора map()
       //map() для каждого файла извлекает значение (val) и ключ (key)
       map(changes =>
         changes.map(c => {
@@ -85,22 +96,23 @@ export class PhotoUploadComponent implements OnInit {
             key: c.payload.key,
             ...(typeof val === 'object' && val !== null ? val : {})
           };
-        })
+        }).reverse() // Добавляем оператор reverse() для изменени порядка загрузки
       ),
-      //обработаем ошибку если error есть
+      // Обработка ошибки
       catchError(error => {
         console.error('Error fetching files:', error);
-        //и вернем пустой массив
+        // и вернем пустой массив
         return of([]);
       })
+    ).subscribe(fileUploads => {
       //с помощью метода subscribe() подписываемся на поток данных.
       // если данные успешно загружены и обработаны, они присваиваются переменной uploadFiles, кот. использую в HTML
-    ).subscribe(fileUploads => {
       this.uploadFiles = fileUploads;
     });
   }
 //зарузка файла на сервер firebase
   uploadFile() {
+    this.loadButton = true;
     if (this.selectedFile) {
       const filePath = `files/${this.selectedFile.name}`;
       const fileRef = this.storage.ref(filePath);
@@ -113,8 +125,11 @@ export class PhotoUploadComponent implements OnInit {
       ).subscribe(snapshot => {
         if (snapshot?.state === 'success') {
           fileRef.getDownloadURL().subscribe(url => {
-            console.log('File available at', url);
             this.db.list('files').push({ name: this.selectedFile?.name, url });
+            this.alerts
+              .open('Изображение, <strong> теперь видят другие пользователи</strong>', {label: 'Поздравляю!'})
+              .subscribe();
+            this.loadButton = false;
             this.open = false;
             this.selectedFile = null;
           });
@@ -125,7 +140,11 @@ export class PhotoUploadComponent implements OnInit {
   // Метод для удаления файла из базы данных
   deleteFile(key: string): void {
     this.db.list('files').remove(key).then(() => {
-      console.log(`File with key ${key} deleted successfully`);
+      this.alerts
+        .open('Изображение, <strong>удалено с сервера</strong>', {label: 'Очень жаль!'})
+        .subscribe();
+      this.openImg = false;
+      console.log(`File с ключом ${key} удалён успешно`);
     }).catch(error => {
       console.error('Error deleting file:', error);
     });

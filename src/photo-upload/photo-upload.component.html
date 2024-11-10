@@ -1,39 +1,69 @@
-  <img type="button"
-       (click)="showDialog()" ngSrc="assets/circle-plus.svg" alt="open modal" height="54" width="54"
-       style="display: flex; position:fixed; margin: 10px; ">
-  <ng-template
-    let-observer
+<img type="button"
+     (click)="showDialog()"
+     ngSrc="assets/circle-plus.svg"
+     alt="open modal"
+     height="54" width="54"
+     class="addButton">
 
-    [tuiDialogOptions]="{label: 'Выберете изображение', size: 's'}"
-    [(tuiDialog)]="open"
-  >
-    <p>Нажмите, чтобы загрузить файл с вашего устройства</p>
-    <app-input-files></app-input-files>
-    <div *ngIf="selectedFile">
+<ng-template
+  let-observer
 
-<!--      <img *ngIf="selectedFile" [ngSrc]="selectedFile.name" [alt]="selectedFile.name" fill>
-      <span *ngIf="uploadPercent | async as percent">
-          <p>Upload Progress: {{ percent }}%</p>
-        </span>-->
+  [tuiDialogOptions]="{label: 'Выберите изображение', size: 's'}"
+  [(tuiDialog)]="open"
+>
+  <p>Нажмите, чтобы загрузить файл с вашего устройства</p>
+  <app-input-files></app-input-files>
+  <div *ngIf="selectedFile">
+
+    <p *ngIf="loadButton">
+      <progress
+        max="100"
+        tuiProgressBar
+        [value]="uploadPercent | async"
+      ></progress>
+    </p>
+
+    <tui-loader
+      class="loader"
+      [inheritColor]=loadButton
+      [overlay]=loadButton
+      [showLoader]=loadButton
+    >
       <button
-        style="margin-top: 10px"
         tuiButton
+        type="button"
         (click)="uploadFile()"
       >
         Загрузить
       </button>
-    </div>
-  </ng-template>
+    </tui-loader>
 
+  </div>
+</ng-template>
 
-<div style="display: flex; flex-direction: column; align-items: center;">
+<div class="imagesContainer">
   <h3>Загруженные изображения:</h3>
   <div *ngFor="let file of uploadFiles"
-       style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; border: 1px solid white; border-radius: 10px; padding: 10px">
-    <img [src]="file.url" [alt]="file.name" style="width: 100px; height: auto;"/>
+       class="image">
+    <img (click)="showImage(file)"
+         [src]="file.url" [alt]="file.name"
+         class="img"/>
     <p>{{ file.name }}</p>
-    <button tuiButton size="m" (click)="deleteFile(file.key)">Удалить</button>
+    <button tuiButton size="m"
+            (click)="deleteFile(file.key)">
+      Удалить
+    </button>
   </div>
 </div>
+<ng-template let-observer [(tuiDialog)]="openImg">
+  <div class="modalImage">
+    <h1>{{ selectedImage?.name }}</h1>
+    <img [src]="selectedImage?.url" [alt]="selectedImage?.name" class="modalImg"/>
+    <button tuiButton size="m"
+            (click)="deleteFile(selectedImage?.key)">
+      Удалить
+    </button>
+  </div>
+</ng-template>
 
 

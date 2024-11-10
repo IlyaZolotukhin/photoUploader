@@ -4,6 +4,8 @@
 >
   <input
     accept="image/*"
+    capture="user"
+    title="Choose files (no limits)"
     tuiInputFiles
     [formControl]="control"
     (change)="onFileSelected($event)"
@@ -12,30 +14,10 @@
 
 <tui-files class="tui-space_top-1">
   <tui-file
-    *ngIf="control.value | tuiFileRejected: {accept: 'image/*'} | async as file"
-    state="error"
-    [file]="file"
-    (remove)="removeFile()"
-  />
-
-  <tui-file
-    *ngIf="loadedFiles$ | async as file"
-    [file]="file"
-    (remove)="removeFile()"
-  />
-
-  <tui-file
-    *ngIf="failedFiles$ | async as file"
-    state="error"
-    [file]="file"
-    (remove)="removeFile()"
-  />
-
-  <tui-file
-    *ngIf="loadingFiles$ | async as file"
-    state="loading"
+    *ngIf="control.valueChanges | async as file"
     [file]="file"
     (remove)="removeFile()"
   />
 </tui-files>
+
 
