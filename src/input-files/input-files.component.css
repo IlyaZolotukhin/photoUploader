@@ -1,1 +1,9 @@
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
 
+[tuiGroup][data-orientation=vertical]>*:only-child {
+  height: 40px;
+}

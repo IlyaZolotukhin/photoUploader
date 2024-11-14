@@ -1,10 +1,10 @@
+<form [formGroup]="form">
 <label
   *ngIf="!control.value"
   tuiInputFiles
 >
   <input
     accept="image/*"
-    capture="user"
     title="Choose files (no limits)"
     tuiInputFiles
     [formControl]="control"
@@ -19,5 +19,12 @@
     (remove)="removeFile()"
   />
 </tui-files>
-
+  <tui-textfield *ngIf="selectedFile">
+    <label tuiLabel>Здесь можете ввести свой комментарий</label>
+    <input
+      formControlName="text"
+      tuiTextfield
+    />
+  </tui-textfield>
+</form>
 

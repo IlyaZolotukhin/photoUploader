@@ -40,6 +40,7 @@ export interface File {
 
 export class PhotoUploadComponent implements OnInit {
   selectedFile: File | null = null;
+  textPicture: string | null = '';
   selectedImage: any;
   uploadPercent!: Observable<number | undefined>;
   uploadFiles?: any[] = [];
@@ -58,9 +59,12 @@ export class PhotoUploadComponent implements OnInit {
   ngOnInit(): void {
     //загрузка при инициализации
     this.fetchFiles();
-    //получаем при инициализации выбранный файл
-    this.fileService.selectedFile$.subscribe(file => {
-      this.selectedFile = file;
+    //получаем при инициализации выбранный файл и текст
+    this.fileService.selectedFiles$.subscribe(selected => {
+      if (selected) {
+        this.selectedFile = selected.file;
+        this.textPicture = selected.textValue;
+      }
     });
   }
 
@@ -125,7 +129,8 @@ export class PhotoUploadComponent implements OnInit {
       ).subscribe(snapshot => {
         if (snapshot?.state === 'success') {
           fileRef.getDownloadURL().subscribe(url => {
-            this.db.list('files').push({ name: this.selectedFile?.name, url });
+            //this.db.list('files').push({ name: this.selectedFile?.name, url });
+            this.db.list('files').push({ name: this.textPicture, url });
             this.alerts
               .open('Изображение, <strong> теперь видят другие пользователи</strong>', {label: 'Поздравляю!'})
               .subscribe();

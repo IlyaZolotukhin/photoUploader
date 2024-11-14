@@ -1,6 +1,6 @@
 <img type="button"
      (click)="showDialog()"
-     ngSrc="assets/circle-plus.svg"
+     ngSrc="http://localhost:4200/assets/circle-plus.svg" priority
      alt="open modal"
      height="54" width="54"
      class="addButton">
@@ -42,7 +42,6 @@
 </ng-template>
 
 <div class="imagesContainer">
-  <h3>Загруженные изображения:</h3>
   <div *ngFor="let file of uploadFiles"
        class="image">
     <img (click)="showImage(file)"
@@ -57,13 +56,14 @@
 </div>
 <ng-template let-observer [(tuiDialog)]="openImg">
   <div class="modalImage">
-    <h1>{{ selectedImage?.name }}</h1>
-    <img [src]="selectedImage?.url" [alt]="selectedImage?.name" class="modalImg"/>
+    <h1>{{ selectedImage.name }}</h1>
+    <img [src]="selectedImage.url" [alt]="selectedImage.name" class="modalImg"/>
     <button tuiButton size="m"
-            (click)="deleteFile(selectedImage?.key)">
+            (click)="deleteFile(selectedImage.key)">
       Удалить
     </button>
   </div>
 </ng-template>
+<!--<input type="text" (change)="sendMessage($event)">-->
 
 

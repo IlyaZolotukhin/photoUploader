@@ -1,34 +1,53 @@
 import {AsyncPipe, NgIf} from '@angular/common';
 import {ChangeDetectionStrategy, Component} from '@angular/core';
-import {FormControl, ReactiveFormsModule} from '@angular/forms';
+import {FormControl, FormGroup, ReactiveFormsModule} from '@angular/forms';
 import type {TuiFileLike} from '@taiga-ui/kit';
 import {TuiFiles} from '@taiga-ui/kit';
 import {FileService} from "../services/file.service";
+import {TuiLabel, TuiTextfieldComponent, TuiTextfieldDirective} from "@taiga-ui/core";
 import {File} from "../photo-upload/photo-upload.component";
 
 @Component({
   selector: 'app-input-files',
   standalone: true,
   exportAs: "app-input-files",
-  imports: [AsyncPipe, NgIf, ReactiveFormsModule, TuiFiles],
+  imports: [AsyncPipe, NgIf, ReactiveFormsModule, TuiFiles, TuiTextfieldComponent, TuiLabel, TuiTextfieldDirective],
   templateUrl: './input-files.component.html',
-  styleUrl: './input-files.component.css',
+  styleUrls: ['./input-files.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export default class InputFilesComponent {
-  constructor(private fileService: FileService) {}
   selectedFile: File | null = null;
-//ниже код из TUI
+
+  constructor(private fileService: FileService) {
+    this.form.get('text')?.valueChanges.subscribe((textValue) => {
+        this.fileService.setSelectedFile(this.selectedFile, textValue);
+    });
+  }
+
   protected readonly control = new FormControl<TuiFileLike | null>(null);
+
+  protected readonly form = new FormGroup({
+    picture: this.control,
+    text: new FormControl(''),
+  });
 
   protected removeFile(): void {
     this.control.setValue(null);
-
+    this.selectedFile = null;
+    this.fileService.setSelectedFile(null, '');
   }
-//выбираем файл и отправляем в файл-сервис для хранения
-  onFileSelected(event: any) {
-    this.selectedFile = event.target.files[0];
-    console.log(this.selectedFile)
-    this.fileService.setSelectedFile(this.selectedFile);
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+
+    if (input.files && input.files.length > 0) {
+      const file = input.files[0];
+      this.selectedFile = file;
+      this.control.setValue(file);
+      const textValue = this.form.get('text')?.value ?? '';
+
+      this.fileService.setSelectedFile(file, textValue);
+    }
   }
 }
