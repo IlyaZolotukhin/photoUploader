@@ -1,13 +1,7 @@
-<img type="button"
-     (click)="showDialog()"
-     ngSrc="http://localhost:4200/assets/circle-plus.svg" priority
-     alt="open modal"
-     height="54" width="54"
-     class="addButton">
+<button (click)="showDialog()" class="addButton" style="">+</button>
 
 <ng-template
   let-observer
-
   [tuiDialogOptions]="{label: 'Выберите изображение', size: 's'}"
   [(tuiDialog)]="open"
 >
@@ -64,6 +58,6 @@
     </button>
   </div>
 </ng-template>
-<!--<input type="text" (change)="sendMessage($event)">-->
+
 
 
